@@ -1,71 +1,76 @@
-# production_planning_group75
+# EMU 341 Production Planning and Control - Group 75
 
-Group 75's **Production Planning** application, built with R Shiny and published on Posit Connect Cloud.
-Each course topic is added as a separate module (one file in `R/`) and appears as a tab in the app menu.
-Methods and notation follow Nahmias, *Production and Operations Analysis*.
+An R Shiny course application with shared data management, a four-group
+Forecasting workspace, and a learning curve module. Application text and code
+comments are in English.
 
-## Current status
+## Run locally
 
-| Assignment | Topic | Status |
-|---|---|---|
-| Assignment 1 | Learning Curve | Done |
-| Assignment 2 | Forecasting (Chapter 2) | Done and tested against the book examples |
+From the parent `production_planning` workspace in RStudio:
 
-## Modules
-
-| Menu | Method | File |
-|---|---|---|
-| Learning Curve | Learning curve | `R/ogrenme.R` |
-| Forecasting → Stationary series | Moving Average | `R/moving_average.R` |
-| | Weighted Moving Average | `R/weighted_moving_average.R` |
-| | Simple Exponential Smoothing | `R/exponential_smoothing.R` |
-| | Seasonal Factors (quick and dirty) | `R/seasonal_factors.R` |
-| Forecasting → Trend series | Holt's Method | `R/holt.R` |
-| Forecasting → Seasonal series | Seasonal Decomposition (moving averages) | `R/seasonal_decomposition.R` |
-| | Winters's Method | `R/winters.R` |
-| Forecasting → Box-Jenkins | AR, MA, ARMA, ARIMA | `R/box_jenkins.R` |
-| (shared) | Data upload, error measures, regression, plots, reports | `R/forecast_helpers.R` |
-
-## Features (Forecasting)
-
-- **Data upload:** Excel (`.xlsx`, `.xls`) or CSV. For Excel files the sheet can be chosen, then the demand column. A **Remove file** button clears the file and the results.
-- **Run button:** nothing is computed until **Run** is pressed. Changing a setting has no effect until Run is pressed again.
-- **Parameters:** entered manually or found by search ("Find the best ..."), using the lowest MSE, MAD or MAPE (lowest AIC for Box-Jenkins). The parameter table shows which one was used.
-- **Initial values** (exponential smoothing, Holt, Winters): regression on the first periods, or entered manually. Winters can also use the book's initialization procedure.
-- **Results:** forecasts, plot, and MAD / MSE / MAPE. The period from which the error measures are computed can be chosen.
-- **Box-Jenkins:** ACF / PACF plots (original, differenced and residual series), parameter estimates and forecasts with 95% intervals.
-- **Export:** after Run, results can be downloaded as a **PDF report** (plots + tables) or **Excel tables** (one sheet per table).
-
-## Project structure
-
-```
-production_planning_group75/
-├── app.R           # main menu: every module is added here
-├── manifest.json   # package list for Connect Cloud
-├── README.md
-└── R/              # one file per module + shared helpers
+```r
+source("setup.R")    # Install missing application packages into the local library.
+source("run_app.R")  # Start the app at http://127.0.0.1:3838.
 ```
 
-## Running locally
+Alternatively, open this directory in RStudio and use **Run App** on `app.R`.
+The launcher also accepts a `PLANNING_PORT` environment variable.
 
-1. Download the repository (Code → Download ZIP) and unzip it.
-2. In RStudio, install the packages once:
-   ```r
-   install.packages(c("shiny", "readxl", "writexl", "rsconnect"))
-   ```
-3. Open `app.R` and press **Run App**.
+## Data and calculations
 
-## Adding a new module
+Upload XLSX or CSV data in **Data Management**, select the numeric target and
+period column, then choose the calendar interval when using dates. Excel sheet
+selection and explicit CSV separator/decimal controls are available. Row order
+can be used when no period column exists. Edit cells with a double-click; new
+target cells are intentionally empty. Sorting and deletion require explicit
+user actions. Invalid, duplicate or irregular periods are reported rather
+than silently changed.
 
-1. Write `R/<module_name>.R` with two functions: `<module_name>_ui(id)` and `<module_name>_server(id)`. Every input/output id in the UI goes inside `ns()`.
-2. Add a `tabPanel(...)` line to the `ui` and a `<module_name>_server("...")` line to the `server` in `app.R`.
-3. Test with **Run App** in RStudio.
-4. If a new package was used, regenerate the manifest:
-   ```r
-   rsconnect::writeManifest("path/to/production_planning_group75")
-   ```
-5. Upload the changed files to GitHub and check the app on Connect Cloud.
+Within **Forecasting**, choose Stationary Series, Trend Series, Seasonal Series
+or Box-Jenkins, select a method, set its parameters, and click **Run Forecast**.
+The horizon is one period. Changing data or settings invalidates old results.
+Each method provides forecasts, a plot, MAD, MSE and MAPE. Box-Jenkins methods
+also provide coefficient estimates, ACF/PACF, residual diagnostics and
+model-based prediction intervals.
 
-## Packages
+Errors are actual minus forecast. Metrics include only the displayed evaluation
+periods; future periods and unavailable warm-up forecasts are excluded. MAPE is
+unavailable when an evaluated actual is zero. Historical fitted errors and
+parameter-selection scores are explicitly labelled and are not presented as
+independent test accuracy. Automatic moving-average windows share a common
+evaluation period; ties select the smaller window.
 
-`shiny`, `readxl` (reading Excel), `writexl` (Excel export). Plots, ARIMA, ACF and PACF use base R (`graphics`, `stats`).
+Smoothing supports manual or regression initialization. The initial state
+refers to the end of the selected initialization prefix; regression never uses
+later observations to determine that state. Winters estimates seasonal starts
+from at least two cycles and supports additive or multiplicative seasonality.
+Multiplicative seasonal methods require positive observations. Classical
+decomposition uses centered moving averages followed by a linear trend on the
+seasonally adjusted series; its historical fit uses the fitted sample.
+
+Automatic ARIMA selects by AICc within the displayed bounds. Thorough search
+disables stepwise selection; both search modes disable likelihood approximation.
+Seasonal ARIMA search requires an explicit season length and its checkbox.
+Model assumptions, optimizer failures and remaining residual correlation should
+be reviewed; a small historical error alone does not establish forecast quality.
+
+## Verification and structure
+
+```r
+source("production_planning_group75/test_models.R") # From the parent workspace.
+```
+
+Or run `Rscript --vanilla tests/run_tests.R` from this application directory.
+The suite checks numerical reference cases, initialization, period validation,
+CSV/XLSX input and module result invalidation.
+
+- `app.R`: common application navigation and module wiring.
+- `R/data_management.R`: shared dataset editing and validation.
+- `R/forecast_core.R`: calculation functions independent of the interface.
+- `R/forecasting.R`: namespaced forecasting interfaces and servers.
+- `R/ogrenme.R`: existing learning curve module, with English interface text.
+- `tests/fixtures/seasonal_demand.csv`: deterministic synthetic example data.
+
+Before publishing, regenerate `manifest.json` with `rsconnect::writeManifest()`
+from this application directory and verify the deployed app on Connect Cloud.
+Exclude the parent workspace's local package library from version control.
