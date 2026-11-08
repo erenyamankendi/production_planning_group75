@@ -3,7 +3,9 @@ learning_ui <- function(id) {
   shiny::sidebarLayout(
     shiny::sidebarPanel(shiny::sliderInput(ns("rate"), "Learning rate", 0.6, 0.99, 0.8),
                        shiny::p("The first unit takes 100 time units.")),
-    shiny::mainPanel(shiny::h3("Learning Curve"), shiny::plotOutput(ns("curve")))
+    shiny::mainPanel(shiny::h3("Learning Curve"),
+      pp_presentation_hint("Read the curve", "At an 80% learning rate, the time per unit falls to 80% of its previous value each time cumulative output doubles."),
+      shiny::plotOutput(ns("curve")))
   )
 }
 learning_server <- function(id) {

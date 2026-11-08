@@ -1414,6 +1414,29 @@
         "Archs": "x64"
       }
     },
+    "lpSolve": {
+      "Source": "CRAN",
+      "Repository": "https://cloud.r-project.org",
+      "description": {
+        "Package": "lpSolve",
+        "Version": "5.6.23",
+        "Title": "Interface to 'Lp_solve' v. 5.5 to Solve Linear/Integer Programs",
+        "Authors@R": "c(\n    person(\"Gábor\", \"Csárdi\", , \"csardi.gabor@gmail.com\", role = \"cre\"),\n    person(\"Michel\", \"Berkelaar\", role = \"aut\")\n  )",
+        "Description": "Lp_solve is freely available (under LGPL 2) software for\n        solving linear, integer and mixed integer programs. In this\n        implementation we supply a \"wrapper\" function in C and some R\n        functions that solve general linear/integer problems,\n        assignment problems, and transportation problems. This version\n        calls lp_solve version 5.5.",
+        "License": "LGPL-2",
+        "URL": "https://github.com/gaborcsardi/lpSolve",
+        "BugReports": "https://github.com/gaborcsardi/lpSolve/issues",
+        "Encoding": "UTF-8",
+        "NeedsCompilation": "yes",
+        "Packaged": "2024-12-13 22:30:07 UTC; gaborcsardi",
+        "Author": "Gábor Csárdi [cre],\n  Michel Berkelaar [aut]",
+        "Maintainer": "Gábor Csárdi <csardi.gabor@gmail.com>",
+        "Repository": "CRAN",
+        "Date/Publication": "2024-12-14 00:30:02 UTC",
+        "Built": "R 4.6.1; x86_64-w64-mingw32; 2026-08-19 11:46:54 UTC; windows",
+        "Archs": "x64"
+      }
+    },
     "magrittr": {
       "Source": "CRAN",
       "Repository": "https://cloud.r-project.org",
@@ -2493,49 +2516,79 @@
   },
   "files": {
     "app.R": {
-      "checksum": "dbc080ea87e8bd3a15dd702556c4063c"
+      "checksum": "b3057c85803be6028fca2ffb74bd5989"
+    },
+    "R/aggregate_disaggregation.R": {
+      "checksum": "e5dc3f3d371b0e347a39543879c84dad"
+    },
+    "R/aggregate_inputs.R": {
+      "checksum": "729cff705c05732f5ac4bbdaa5745953"
+    },
+    "R/aggregate_lp.R": {
+      "checksum": "74b568e3d8c87d201e030f0fa1460f92"
+    },
+    "R/aggregate_method_review.R": {
+      "checksum": "02460bdbe2e9d15f6c823d70b201a602"
+    },
+    "R/aggregate_methods.R": {
+      "checksum": "167b3e20b6c1053d7fb76ff4df33719f"
+    },
+    "R/aggregate_planning.R": {
+      "checksum": "3a5bd9a3526ec48ff255248fadf4f581"
+    },
+    "R/aggregate_results.R": {
+      "checksum": "cedbc82305e96acb80960b1f942d72dd"
+    },
+    "R/aggregate_rounding.R": {
+      "checksum": "76bc73705898e40b428e16171a73156e"
+    },
+    "R/aggregate_transport.R": {
+      "checksum": "f0494c6450787a76f9e03505aacb6edb"
     },
     "R/box_jenkins.R": {
-      "checksum": "c4d75999fffc0c54ddaf7af3386ee4ec"
+      "checksum": "844fca6a7a0b9639604bffc580f8b132"
     },
     "R/data_management.R": {
-      "checksum": "41695930878b4f61937fd014cab6c524"
+      "checksum": "0be7454d61dd219de77365b5d26ede78"
     },
     "R/exponential_smoothing.R": {
-      "checksum": "8c7b2e840b6076c07cbfda1167ae2c96"
+      "checksum": "36fe176498e8f2f4642ce9b3fc2bf6e9"
     },
     "R/forecast_core.R": {
       "checksum": "10bff450e9117616e373891d119e6ce9"
     },
     "R/forecast_helpers.R": {
-      "checksum": "11e004a2c8f30f5910893ce5e359bc4c"
+      "checksum": "fef25c992a20690059f19bf5223b8df2"
     },
     "R/forecasting.R": {
-      "checksum": "c4346d6e8ad423cfaa4f377ad37bf7e5"
+      "checksum": "52081edc954ae401d37cfbcc64a71a97"
     },
     "R/holt.R": {
-      "checksum": "d0815b7e1de0210b9c3d25466fccfbbf"
+      "checksum": "9a076ce0570e97c6aa805a00bc07d48d"
     },
     "R/moving_average.R": {
-      "checksum": "6ee6c3e0107301d217dd3bbda393601b"
+      "checksum": "2a8b47f4c3069f0bb9384bf8d4476924"
     },
     "R/ogrenme.R": {
-      "checksum": "89b9927a73a8ed1124b7ad51a7c0d1a9"
+      "checksum": "5a26ce67d805ebd36c9d2f9cd3979884"
+    },
+    "R/presentation_hints.R": {
+      "checksum": "5b576f7af8792cd04ffb65a505fa0352"
     },
     "R/seasonal_decomposition.R": {
-      "checksum": "9ce75e25cd2ae1b25d673ad0d07c379f"
+      "checksum": "1f637d09a15834c0d0227cd23e5f9f67"
     },
     "R/seasonal_factors.R": {
-      "checksum": "ff8df6caa765045cf0be810dd897d72a"
+      "checksum": "21c6d119fd1386dbac653f70766b37dd"
     },
     "R/weighted_moving_average.R": {
-      "checksum": "a1ff1540827645a6081b38f76e033a99"
+      "checksum": "d93d443b0213c4033ec18011fe506ff2"
     },
     "R/winters.R": {
-      "checksum": "5e7d7c640d769a756decb7d55cf84c8f"
+      "checksum": "b3dc7ef3847deb172ec15eaabccb1043"
     },
     "README.md": {
-      "checksum": "d7485fa789e2b18fdff6ddc8caedf11b"
+      "checksum": "cd15dc6d4d710020cbef1eb2a7041e17"
     }
   },
   "users": null

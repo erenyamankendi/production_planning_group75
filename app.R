@@ -15,7 +15,9 @@ library(shiny)
 ui <- navbarPage("Production Planning & Control",
   tabPanel("Data Management", data_management_ui("data")),
   tabPanel("Forecasting", forecasting_ui("forecasting")),
+  tabPanel("Aggregate Planning", aggregate_planning_ui("aggregate")),
   tabPanel("Learning Curve", learning_ui("learning")),
+  header = pp_presentation_styles(),
   footer = tags$div(style = "padding: 12px 16px; color: #555;",
     "EMU 341 - Group 75 | Forecast errors = actual - forecast. Historical fitting/selection accuracy is labelled separately from independent test accuracy.")
 )
@@ -23,6 +25,7 @@ ui <- navbarPage("Production Planning & Control",
 server <- function(input, output, session) {
   dataset <- data_management_server("data")
   forecasting_server("forecasting", data_bundle = dataset)
+  aggregate_planning_server("aggregate")
   learning_server("learning")
 }
 

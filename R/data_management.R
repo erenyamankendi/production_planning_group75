@@ -90,8 +90,9 @@ data_management_ui <- function(id) {
         shiny::selectInput(ns("separator"), "CSV separator", c("Detect automatically" = "auto", "Comma" = ",", "Semicolon" = ";", "Tab" = "tab")),
         shiny::selectInput(ns("decimal"), "CSV decimal mark", c("Point (.)" = ".", "Comma (,)" = ","))),
       shiny::hr(),
-      shiny::selectInput(ns("target"), "Target series", choices = character()),
-      shiny::selectInput(ns("period_column"), "Period column", choices = c("Use row order" = "")),
+      shiny::selectInput(ns("target"), "Target series", choices = "Demand"),
+      shiny::selectInput(ns("period_column"), "Period column",
+        choices = c("Use row order" = "", "Period"), selected = "Period", selectize = FALSE),
       shiny::selectInput(ns("time_unit"), "Calendar interval (for dates)",
         c("Numeric periods / row order" = "period", "Hourly" = "hour", "Daily" = "day", "Weekly" = "week", "Monthly" = "month", "Quarterly" = "quarter", "Yearly" = "year")),
       shiny::hr(),
@@ -102,7 +103,9 @@ data_management_ui <- function(id) {
       shiny::actionButton(ns("sort_rows"), "Sort by period", icon = shiny::icon("sort")),
       shiny::p(class = "help-block", "Double-click a cell to edit. Empty target cells must be completed before forecasting.")
     ),
-    shiny::mainPanel(shiny::h3("Data Management"), shiny::uiOutput(ns("status")),
+    shiny::mainPanel(shiny::h3("Data Management"),
+                     pp_presentation_hint("Start here", "Choose the period column and the numeric series to forecast. Use Sort by period if the rows are out of order."),
+                     shiny::uiOutput(ns("status")),
                      DT::DTOutput(ns("table")))
   )
 }
@@ -125,6 +128,15 @@ data_management_server <- function(id) {
       if (!length(sheets)) return(shiny::p("Excel worksheets could not be read."))
       shiny::selectInput(session$ns("sheet"), "Excel worksheet", choices = sheets)
     })
+    update_target <- function(data, period, selected) {
+      numeric_columns <- names(data)[vapply(data, function(x) is.numeric(x) && !inherits(x, c("Date", "POSIXt")), logical(1))]
+      candidates <- setdiff(numeric_columns, period)
+      if (is.null(selected) || !selected %in% candidates) {
+        demand <- candidates[tolower(candidates) %in% c("demand", "sales", "failures", "value")]
+        selected <- if (length(demand)) demand[1] else if (length(candidates)) candidates[1] else character()
+      }
+      shiny::updateSelectInput(session, "target", choices = candidates, selected = selected)
+    }
     shiny::observeEvent(upload_key(), {
       shiny::req(input$file)
       if (tolower(tools::file_ext(input$file$name)) == "xlsx") shiny::req(input$sheet)
@@ -135,29 +147,28 @@ data_management_server <- function(id) {
       } else {
         rv$data <- result
         rv$import_error <- NULL
+        columns <- names(result)
+        headers <- tolower(columns)
+        day_column <- columns[match("day", headers)]
+        cars_column <- columns[match("cars", headers)]
+        period <- input$period_column
+        target <- input$target
+        if (!is.na(day_column) && !is.na(cars_column)) {
+          period <- day_column
+          target <- cars_column
+        } else if (is.null(period) || !period %in% columns) {
+          candidates <- columns[headers %in% c("period", "date", "month", "time")]
+          period <- if (length(candidates)) candidates[1] else ""
+        }
+        shiny::updateSelectInput(session, "period_column",
+          choices = c("Use row order" = "", stats::setNames(columns, columns)), selected = period)
+        update_target(result, period, target)
       }
       rv$revision <- rv$revision + 1L
     }, ignoreNULL = TRUE)
-    shiny::observeEvent(names(rv$data), {
-      columns <- names(rv$data)
-      selected <- shiny::isolate(input$period_column)
-      if (is.null(selected) || !selected %in% columns) {
-        candidates <- columns[tolower(columns) %in% c("period", "date", "month", "time")]
-        selected <- if (length(candidates)) candidates[1] else ""
-      }
-      shiny::updateSelectInput(session, "period_column", choices = c("Use row order" = "", stats::setNames(columns, columns)), selected = selected)
-    }, ignoreNULL = FALSE)
-    shiny::observe({
-      data <- rv$data
-      numeric_columns <- names(data)[vapply(data, function(x) is.numeric(x) && !inherits(x, c("Date", "POSIXt")), logical(1))]
-      candidates <- setdiff(numeric_columns, input$period_column)
-      selected <- shiny::isolate(input$target)
-      if (is.null(selected) || !selected %in% candidates) {
-        demand <- candidates[tolower(candidates) %in% c("demand", "sales", "failures", "value")]
-        selected <- if (length(demand)) demand[1] else if (length(candidates)) candidates[1] else character()
-      }
-      shiny::updateSelectInput(session, "target", choices = candidates, selected = selected)
-    })
+    shiny::observeEvent(input$period_column, {
+      update_target(rv$data, input$period_column, input$target)
+    }, ignoreInit = TRUE)
     output$table <- DT::renderDT({
       DT::datatable(rv$data, rownames = FALSE, editable = "cell", selection = "multiple",
                     options = list(pageLength = 12L, scrollX = TRUE, dom = "tip", order = list()))

@@ -63,11 +63,13 @@ forecasting_method_ui <- function(id, method) {
   shiny::sidebarLayout(
     shiny::sidebarPanel(shiny::h4("Model settings"), shiny::p("Data are supplied by Data Management."),
       controls, shiny::hr(), shiny::actionButton(ns("run"), "Run Forecast", class = "btn-primary", icon = shiny::icon("play"))),
-    shiny::mainPanel(shiny::h3(label), shiny::uiOutput(ns("status")),
+    shiny::mainPanel(shiny::h3(label), pp_forecast_hint(method), shiny::uiOutput(ns("status")),
       shiny::h4(shiny::textOutput(ns("next_forecast"))),
       shiny::tabsetPanel(
         shiny::tabPanel("Forecast", shiny::plotOutput(ns("forecast_plot"), height = "340px"),
-          shiny::h4("MAD, MSE and MAPE"), shiny::textOutput(ns("accuracy_scope")),
+          shiny::h4("MAD, MSE and MAPE"),
+          pp_presentation_hint("Read the errors", "MAD is in the original units. MSE gives more weight to large misses. MAPE expresses the error as a percentage."),
+          shiny::textOutput(ns("accuracy_scope")),
           shiny::tableOutput(ns("metrics")), shiny::h4("Forecasts by period"), DT::DTOutput(ns("forecast_table"))),
         shiny::tabPanel("Method details", shiny::tableOutput(ns("parameters")),
           shiny::uiOutput(ns("extra_details")),
@@ -76,6 +78,7 @@ forecasting_method_ui <- function(id, method) {
           if (method %in% c("seasonal_factors", "decomposition")) shiny::plotOutput(ns("component_plot")),
           if (smoothing || method == "decomposition") shiny::plotOutput(ns("regression_plot"))),
         if (box) shiny::tabPanel("Box-Jenkins diagnostics",
+          pp_presentation_hint("Check the residuals", "ACF and PACF show how values are related across lags. Look for a pattern that the fitted model has left behind."),
           shiny::h4("Parameter estimates"), shiny::tableOutput(ns("estimates")),
           shiny::h4("Next-period prediction intervals"), shiny::tableOutput(ns("intervals")),
           shiny::plotOutput(ns("acf_original")), shiny::plotOutput(ns("acf_transformed")),
