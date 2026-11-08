@@ -21,6 +21,13 @@ local({
       ending_mode = rule, k = k, costs = setNames(costs, names(ap_cost_labels)), unit = "units", currency = "USD")
   }
 
+  unit_data <- data.frame(Period = "P1", "Demand (units)" = 15, "Working Days [days]" = 1, check.names = FALSE)
+  stopifnot(identical(ap_detect_units(unit_data, "Demand (units)", "Working Days [days]"),
+    c(demand = "units", days = "days")))
+  unit_data[["Demand Units"]] <- "boxes"
+  stopifnot(ap_detect_units(unit_data, "Demand (units)", "Working Days [days]")[["demand"]] == "")
+  cat("PASS unit suffixes stay distinct from explicit unit metadata.\n")
+
   basic <- settings(c(30, 10, 20), k = 10)
   chase <- ap_check_plan(basic, ap_chase_plan(basic))
   close_to(chase$rows$workforce, c(3, 1, 2))

@@ -60,12 +60,14 @@ ap_normalize_unit <- function(value, explicit = FALSE) {
 ap_detect_units <- function(data, demand_column, days_column) {
   columns <- names(data)
   keys <- ap_header_key(columns)
+  explicit_metadata <- !grepl(ap_unit_suffix_pattern, columns, perl = TRUE)
   detect <- function(column, metadata_keys, infer_time_unit = FALSE) {
     if (length(column) != 1L || is.na(column) || !column %in% columns) return("")
     match <- regmatches(column, regexec(ap_unit_suffix_pattern, column, perl = TRUE))[[1L]]
     unit_hint <- if (length(match)) trimws(paste0(match[2L], match[3L])) else ""
     suffix <- ap_normalize_unit(unit_hint)
-    metadata <- unlist(lapply(data[keys %in% metadata_keys], as.character), use.names = FALSE)
+    metadata_columns <- explicit_metadata & columns != column & keys %in% metadata_keys
+    metadata <- unlist(lapply(data[metadata_columns], as.character), use.names = FALSE)
     declared <- c(suffix, vapply(metadata, ap_normalize_unit, character(1), explicit = TRUE, USE.NAMES = FALSE))
     declared <- declared[nzchar(declared) & !duplicated(tolower(declared))]
     if (length(declared) == 1L) return(declared)
